@@ -1,12 +1,13 @@
 import os
 from pathlib import Path #フォルダ捜索に使用
 from typing import List #フォルダ捜索に使用
-from PIL import Image #画像読み取りに使用
+from PIL import Image, ImageTk #画像読み取りに使用
 from PIL.ExifTags import TAGS #画像読み取りに使用
 from datetime import datetime #日付関係に使用
 import shutil #ファイル移動に使用
 import argparse #引数対応
-import logging #ログ出力
+import logging #ログ出力git
+from tkinter import Tk, Label, PhotoImage #splash画像表示
 
 # ログファイル名を生成（例: logs/2025-07-19_2030.log）
 now = datetime.now().strftime("%Y-%m-%d_%H%M%S")
@@ -130,9 +131,44 @@ def move_file(source_path: Path, target_path: Path) -> None:
     except Exception as e:
         print(f"[ERROR] ファイル移動失敗: {source_path.name} - {e}")
 
+def show_splash_screen(image_path: Path, duration_ms: int = 3000, max_size=(800, 800)):
+    """
+    起動時に指定されたPNG画像をスプラッシュ表示する（duration_ms ミリ秒）
+    起動時にスプラッシュ画像を縮小表示（最大サイズで表示）
+    """
+    try:
+        #画像読み込み+縮小
+        original_img = Image.open(image_path)
+        original_img.thumbnail(max_size)# アスペクト比を維持して最大サイズに収める
+        
+        root = Tk()
+        root.overrideredirect(True) #枠無しウィンドウ
+        root.attributes("-topmost", True) #"常に最前面"
+
+        # Image → Tk対応形式に変換
+        img = ImageTk.PhotoImage(original_img)
+        #img = PhotoImage(file=str(image_path))
+        label = Label(root, image=img)
+        label.pack()
+
+        #ウィンドウを中央に配置
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        x = (screen_width - img.width()) // 2
+        y = (screen_height - img.height()) // 2
+        root.geometry(f"+{x}+{y}")
+
+        #一定時間表示して閉じる
+        root.after(duration_ms, root.destroy)
+        root.mainloop()
+    except Exception as e:
+        print(f"[WARNING] スプラッシュ画面の表示に失敗しました: {e}")
+
 
 
 def main():
+    show_splash_screen(Path("assets/MediaSort_splash.png"))
+
     parser = argparse.ArgumentParser(description="MediaSort: 写真・動画を日付で分類するツール")
     parser.add_argument('--input', '-i', type=str, default= 'test_data', help='入力フォルダパス') #将来的に変更
     parser.add_argument('--output', '-o', type=str, default='output', help='出力フォルダパス')
