@@ -4,6 +4,7 @@ from PIL import Image #画像読み取りに使用
 from PIL.ExifTags import TAGS #画像読み取りに使用
 from datetime import datetime #日付関係に使用
 import shutil #ファイル移動に使用
+import argparse #引数対応
 
 def scan_files(source_folder):
     """
@@ -111,14 +112,21 @@ def move_file(source_path: Path, target_path: Path) -> None:
 
 
 def main():
-    # フォルダのパス（手動で指定する。後で自動化予定）
-    source_folder = Path("test_data") # ←テスト用のフォルダパス
-    destination_folder = Path("output")
+    parser = argparse.ArgumentParser(description="MediaSort: 写真・動画を日付で分類するツール")
+    parser.add_argument('--input', '-i', type=str, default= 'test_data', help='入力フォルダパス') #将来的に変更
+    parser.add_argument('--output', '-o', type=str, default='output', help='出力フォルダパス')
+    args = parser.parse_args()
+
+    source_folder = Path(args.input) 
+    destination_folder = Path(args.output)
 
     print(f"現在の作業ディレクトリ: {Path.cwd()}")
-    files = scan_files(source_folder)
+    print(f"入力フォルダ: {source_folder}")
+    print(f"出力フォルダ: {destination_folder}")
 
+    files = scan_files(source_folder)
     print(f"{len(files)}個のファイルを検出しました:")
+
     for f in files:
         print(f" - {f.name}")
 
