@@ -6,7 +6,28 @@ from PIL.ExifTags import TAGS #画像読み取りに使用
 from datetime import datetime #日付関係に使用
 import shutil #ファイル移動に使用
 import argparse #引数対応
+import logging #ログ出力
 
+# ログファイル名を生成（例: logs/2025-07-19_2030.log）
+now = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+log_dir = Path("logs")
+log_dir.mkdir(exist_ok=True)
+log_path = log_dir / f"{now}.log"
+
+# ログ設定（ファイル＆ターミナル両方）
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler(log_path, encoding='utf-8'),
+        logging.StreamHandler()
+    ]
+)
+
+logging.info("=== MediaSort 処理開始 ===")
+
+
+#関数
 def scan_files(source_folder: Path) -> List[Path]:
     """
     指定フォルダ直下のファイル一覧を取得する（サブフォルダは除外）
@@ -125,7 +146,8 @@ def main():
     print(f"出力フォルダ: {destination_folder}")
 
     files = scan_files(source_folder)
-    print(f"{len(files)}個のファイルを検出しました:")
+    logging.info(f"{len(files)}個のファイルを検出しました:")
+    #print(f"{len(files)}個のファイルを検出しました:")
 
     for f in files:
         print(f" - {f.name}")
