@@ -1,28 +1,28 @@
 import os
 from pathlib import Path #フォルダ捜索に使用
+from typing import List #フォルダ捜索に使用
 from PIL import Image #画像読み取りに使用
 from PIL.ExifTags import TAGS #画像読み取りに使用
 from datetime import datetime #日付関係に使用
 import shutil #ファイル移動に使用
 import argparse #引数対応
 
-def scan_files(source_folder):
+def scan_files(source_folder: Path) -> List[Path]:
     """
-    指定フォルダ内のファイル一覧を再帰的に取得する。
-
-    Parameters:
-        source_folder (str or Path): 検索対象のフォルダパス
-
-    Returns:
-        List[Path]: メディアファイルのパス一覧（ファイル拡張子などはまだ未フィルタ）
+    指定フォルダ直下のファイル一覧を取得する（サブフォルダは除外）
     """
-
     file_list = []
+    for item in source_folder.iterdir():
+        if item.is_file():
+            file_list.append(item)
+    return file_list
+    """#サブフォルダも含めて全階層を再帰的に走査する仕様
     for root, dirs, files in os.walk(source_folder):
         for file in files:
             file_path = Path(root) / file
             file_list.append(file_path)
     return file_list
+    """
 
 def get_taken_date(filepath):
     """
