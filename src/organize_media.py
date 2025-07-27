@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path #フォルダ捜索に使用
 from typing import List #フォルダ捜索に使用
 from PIL import Image, ImageTk #画像読み取りに使用
@@ -8,6 +9,16 @@ import shutil #ファイル移動に使用
 import argparse #引数対応
 import logging #ログ出力git
 from tkinter import Tk, Label, PhotoImage #splash画像表示
+
+#起動パス（.exe or .py の場所）
+if getattr(sys, 'frozen', False):
+    base_dir = Path(sys.executable).resolve().parent # ← src/ の1つ上がプロジェクトルート
+else:
+    base_dir = Path(__file__).resolve().parent.parent
+
+default_input = base_dir / "test_data"
+default_output = base_dir / "output"
+log_dir = base_dir / "logs"
 
 # ログファイル名を生成（例: logs/2025-07-19_2030.log）
 now = datetime.now().strftime("%Y-%m-%d_%H%M%S")
@@ -170,8 +181,8 @@ def main():
     show_splash_screen(Path("assets/MediaSort_splash.png"))
 
     parser = argparse.ArgumentParser(description="MediaSort: 写真・動画を日付で分類するツール")
-    parser.add_argument('--input', '-i', type=str, default= 'test_data', help='入力フォルダパス') #将来的に変更
-    parser.add_argument('--output', '-o', type=str, default='output', help='出力フォルダパス')
+    parser.add_argument('--input', '-i', type=str, default= str(default_input), help='入力フォルダパス')
+    parser.add_argument('--output', '-o', type=str, default=str(default_output), help='出力フォルダパス')
     args = parser.parse_args()
 
     source_folder = Path(args.input) 
