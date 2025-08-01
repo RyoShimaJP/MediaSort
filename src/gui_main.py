@@ -2,9 +2,16 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from pathlib import Path
 from media_sort.core import run_media_sort, base_dir, show_splash_screen #core.pyをインポート
+import sys
+import os
 
 #スプラッシュ画像のパス
-splash_path = Path(__file__).resolve().parent.parent / "assets" / "MediaSort_splash.png"
+if getattr(sys, 'frozen', False):  # EXE起動時
+    splash_path = Path(sys._MEIPASS) / "assets" / "MediaSort_splash.png"
+else:  # 通常Python実行時
+    splash_path = Path(__file__).resolve().parent.parent / "assets" / "MediaSort_splash.png"
+
+#splash_path = Path(__file__).resolve().parent.parent / "assets" / "MediaSort_splash.png"
 show_splash_screen(splash_path)
 
 class MediaSortApp:
@@ -17,19 +24,22 @@ class MediaSortApp:
         self.output_path = tk.StringVar()
 
         # 追加（レイアウト拡張）
+        # 幅と高さ方向の追従設定
         root.columnconfigure(1, weight=1)
-        self.root.rowconfigure(2, weight=1)  # 実行ボタンのある行を伸縮対象に
+        self.root.rowconfigure(0, weight=1)
+        self.root.rowconfigure(1, weight=1)
+        self.root.rowconfigure(2, weight=1)
 
         #GUI構築
         tk.Label(root, text="入力フォルダ：").grid(row=0, column=0, sticky="e")
-        tk.Entry(root, textvariable= self.input_path, width=40).grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
+        tk.Entry(root, textvariable= self.input_path, width=40).grid(row=0, column=1, padx=5, pady=5, sticky="ew")
         tk.Button(root, text="参照", command=self.browse_input).grid(row=0, column=2, padx=5, pady=5)
 
         tk.Label(root, text="出力フォルダ：").grid(row=1, column=0, sticky="e")
-        tk.Entry(root, textvariable= self.output_path, width=40).grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
+        tk.Entry(root, textvariable= self.output_path, width=40).grid(row=1, column=1, padx=5, pady=5, sticky="ew")
         tk.Button(root, text="参照", command=self.browse_output).grid(row=1, column=2, padx=5, pady=5)
         
-        tk.Button(root, text="実行", command=self.run_sort).grid(row=2, column=1, pady=10)
+        tk.Button(root, text="実行", command=self.run_sort).grid(row=2, column=1, pady=15)
             
     def browse_input(self):
         path = filedialog.askdirectory()
